@@ -7,6 +7,9 @@ const sinon = require('sinon');
 const chai = require('chai');
 const fixture = require('broccoli-fixture');
 const CSSModules = require('./index');
+const { Builder } = require('broccoli');
+const os = require('os');
+const fs = require('fs-extra');
 
 const Node = fixture.Node;
 
@@ -610,6 +613,41 @@ it('honors the sourceMapBaseDir when configured', function() {
         class: '_styles__class'
       })
     });
+  });
+
+  it.only("doesn't rewrite files unnecessarily", function() {
+    const input = `${os.tmpdir()}/broccoli-css-modules-test/input`;
+    const inputFile = `${input}/random.txt`;
+
+    fs.removeSync(input);
+    fs.mkdirpSync(input);
+
+    fs.writeFileSync(`${input}/file.css`, '.foo {}');
+    fs.writeFileSync(inputFile, '');
+
+    const tree = new CSSModules(input);
+    const builder = new Builder(tree);
+
+    const outputCSS = `${builder.outputPath}/file.css`;
+    const outputJS = `${builder.outputPath}/file.js`;
+    const mtimes = {};
+
+    return builder.build()
+      .then(() => {
+        mtimes.css = fs.lstatSync(outputCSS).mtimeMs;
+        mtimes.js = fs.lstatSync(outputJS).mtimeMs;
+
+        fs.writeFileSync(inputFile, 'uh oh');
+
+        return builder.build();
+      })
+      .then(() => {
+        assert.equal(fs.lstatSync(outputCSS).mtimeMs, mtimes.css);
+        assert.equal(fs.lstatSync(outputJS).mtimeMs, mtimes.js);
+      })
+      .then(() => {
+        return builder.cleanup();
+      });
   });
 });
 
