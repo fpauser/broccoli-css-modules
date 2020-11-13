@@ -1,6 +1,6 @@
 {
-  "name": "broccoli-css-modules",
-  "version": "0.7.0",
+  "name": "@fpauser/broccoli-css-modules",
+  "version": "1.0.0-fpauser-alpha.0",
   "description": "A broccoli plugin for compiling CSS modules",
   "main": "index.js",
   "scripts": {
@@ -13,7 +13,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/salsify/broccoli-css-modules.git"
+    "url": "https://github.com/fpauser/broccoli-css-modules"
   },
   "engines": {
     "node": ">= 10"
